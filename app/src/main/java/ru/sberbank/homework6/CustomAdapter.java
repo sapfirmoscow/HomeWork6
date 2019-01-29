@@ -29,6 +29,7 @@ public class CustomAdapter extends RecyclerView.Adapter {
         mFactoryMap = new SparseArray<>();
         mFactoryMap.put(ItemTypes.CALL.type, new CallViewHolderFactory());
         mFactoryMap.put(ItemTypes.SMS.type, new SmsViewHolderFactory());
+        mFactoryMap.put(ItemTypes.ALARM.type, new AlarmViewHolderFactory());
     }
 
     @NonNull
@@ -49,9 +50,6 @@ public class CustomAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-//       if(mData.get(position).getType()==ItemTypes.CALL.type) return ItemTypes.CALL.type;
-//       else if(mData.get(position).getType()== ItemTypes.SMS) return ItemTypes.SMS.type;
-
         return mData.get(position).getType();
     }
 
@@ -68,6 +66,8 @@ public class CustomAdapter extends RecyclerView.Adapter {
             return new CallHolderBinder(item, ItemTypes.CALL.type);
         } else if (item.getType() == ItemTypes.SMS.type)
             return new SmsHolderBinder(item, ItemTypes.SMS.type);
+        else if (item.getType() == ItemTypes.ALARM.type)
+            return new AlarmHolderBinder(item, ItemTypes.ALARM.type);
 
         return null;
     }
@@ -93,6 +93,15 @@ public class CustomAdapter extends RecyclerView.Adapter {
         public SmsViewHolder(@NonNull View itemView) {
             super(itemView);
             textView = itemView.findViewById(R.id.textView7);
+        }
+    }
+
+    public static class AlarmViewHolder extends RecyclerView.ViewHolder {
+        TextView textView;
+
+        public AlarmViewHolder(@NonNull View itemView) {
+            super(itemView);
+            textView = itemView.findViewById(R.id.textView5);
         }
     }
 }

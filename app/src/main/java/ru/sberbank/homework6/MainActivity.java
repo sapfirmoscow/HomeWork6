@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.sberbank.homework6.Items.Alarm;
 import ru.sberbank.homework6.Items.BaseItem;
 import ru.sberbank.homework6.Items.Call;
 import ru.sberbank.homework6.Items.Sms;
@@ -51,11 +52,10 @@ public class MainActivity extends AppCompatActivity {
 
                 arrayList1.add(new Sms("It's works"));
                 arrayList1.add(new Sms("Mama mia!"));
-                arrayList1.add(new Sms("Mama mia!"));
-                arrayList1.add(new Sms("Mama mia!"));
-                arrayList1.add(new Sms("Mama mia!"));
-                arrayList1.add(new Sms("Mama mia!"));
-                arrayList1.add(new Sms("Mama mia!"));
+
+                arrayList1.add(new Alarm("12:40"));
+                arrayList1.add(new Alarm("16:52"));
+
                 adapter.setData(arrayList1);
             }
         }, 5000);   //5 seconds
