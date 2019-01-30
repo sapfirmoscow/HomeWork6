@@ -1,7 +1,10 @@
 package ru.sberbank.homework6;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +26,7 @@ public class CustomAdapter extends RecyclerView.Adapter {
         mData = data;
         mBinders = new ArrayList<>();
         initFactory();
+        setData(mData);
     }
 
     private void initFactory() {
@@ -48,18 +52,58 @@ public class CustomAdapter extends RecyclerView.Adapter {
         }
     }
 
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List payloads) {
+        Log.d("TESTING", "bind, position = " + position);
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads);
+        } else {
+            Bundle diff = (Bundle) payloads.get(0);
+            for (String key : diff.keySet()) {
+                switch (key) {
+                    case "call_firstname":
+                        ((CallViewHolder) holder).textView.setText(diff.getString("call_firstname"));
+                        break;
+                    case "sms_text":
+                        ((SmsViewHolder) holder).textView.setText(diff.getString("sms_text"));
+                        break;
+                    case "alarm_time":
+                        ((AlarmViewHolder) holder).textView.setText(diff.getString("alarm_time"));
+                        break;
+                }
+            }
+        }
+    }
+
     @Override
     public int getItemViewType(int position) {
         return mData.get(position).getType();
     }
 
-    public void setData(List<BaseItem> items) {
+    private void setData(List<BaseItem> items) {
         mBinders.clear();
         for (BaseItem item : items) {
             mBinders.add(generateBinder(item));
         }
         notifyDataSetChanged();
     }
+
+
+    public void updateData(List<BaseItem> newItems) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffCall(mData, newItems));
+        diffResult.dispatchUpdatesTo(this);
+
+        mData.clear();
+        mData.addAll(newItems);
+
+        mBinders.clear();
+        for (BaseItem item : mData) {
+            mBinders.add(generateBinder(item));
+        }
+
+    }
+
 
     private ViewHolderBinder generateBinder(BaseItem item) {
         if (item.getType() == ItemTypes.CALL.type) {
@@ -83,7 +127,7 @@ public class CustomAdapter extends RecyclerView.Adapter {
 
         public CallViewHolder(@NonNull View itemView) {
             super(itemView);
-            textView = itemView.findViewById(R.id.textView4);
+            textView = itemView.findViewById(R.id.textView3);
         }
     }
 

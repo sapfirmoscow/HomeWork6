@@ -1,7 +1,13 @@
 package ru.sberbank.homework6;
 
+import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,94 +16,82 @@ import android.support.v7.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.sberbank.homework6.Items.Alarm;
 import ru.sberbank.homework6.Items.BaseItem;
-import ru.sberbank.homework6.Items.Call;
-import ru.sberbank.homework6.Items.Sms;
 
 public class MainActivity extends AppCompatActivity {
-    static List<BaseItem> arrayList1;
+    static List<BaseItem> arrayList1 = new ArrayList<>();
 
     private RecyclerView recyclerView;
     private CustomAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private Messenger mServiceMessenger;
+    private Messenger mMessenger = new Messenger(new Handler() {
+        @Override
+        public void handleMessage(Message message) {
+            switch (message.what) {
+                case MyService.MESSAGE_UPDATE:
+                    update((List<BaseItem>) message.obj);
+                    break;
+                default:
+                    super.handleMessage(message);
+
+            }
+        }
+    });
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mServiceMessenger = new Messenger(service);
+
+            registerClient();
+        }
+
+        private void registerClient() {
+            Message message = Message.obtain(null, MyService.MESSAGE_REGISTER_CLIENT);
+            message.replyTo = mMessenger;
+            try {
+                mServiceMessenger.send(message);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mServiceMessenger = null;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initRecyclerView();
+    }
 
-
-        recyclerView = findViewById(R.id.recycle_view);
-        layoutManager = new LinearLayoutManager(this);
-
-        recyclerView.setLayoutManager(layoutManager);
-
-        arrayList1 = new ArrayList<>();
-        arrayList1.add(new Call("FirstTesting"));
-        arrayList1.add(new Sms("Oooooooooooooooops"));
-
-        adapter = new CustomAdapter(arrayList1);
-        adapter.setData(arrayList1);
-
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(adapter);
-
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                arrayList1.add(new Call("Alan"));
-                arrayList1.add(new Call("Alex"));
-
-                arrayList1.add(new Sms("It's works"));
-                arrayList1.add(new Sms("Mama mia!"));
-
-                arrayList1.add(new Alarm("12:40"));
-                arrayList1.add(new Alarm("16:52"));
-
-                adapter.setData(arrayList1);
-            }
-        }, 5000);   //5 seconds
-
-
+    private void update(List<BaseItem> list) {
+        adapter.updateData(list);
     }
 
 
-    //    public static String getRandomPhone() {
-//        int num1, num2, num3;
-//        int set2, set3;
-//        Random generator = new Random();
-//        num1 = generator.nextInt(1)+9;
-//        num2 = generator.nextInt(2);
-//        num3 = generator.nextInt(6)+2;
-//        set2 = generator.nextInt(643) + 100;
-//        set3 = generator.nextInt(8999) + 1000;
-//        return  " +7 (" + num1 + "" + num2 + "" + num3 + ")" + "-" + set2 + "-" + set3 ;
-//    }
-//
-//
-//
-//
-//    final String lexicon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ12345674890";
-//
-//    final java.util.Random rand = new java.util.Random();
-//
-//    // consider using a Map<String,Boolean> to say whether the identifier is being used or not
-//    final Set<String> identifiers = new HashSet<String>();
-//
-//    public String randomIdentifier() {
-//        StringBuilder builder = new StringBuilder();
-//        while(builder.toString().length() == 0) {
-//            int length = rand.nextInt(5)+5;
-//            for(int i = 0; i < length; i++) {
-//                builder.append(lexicon.charAt(rand.nextInt(lexicon.length())));
-//            }
-//            if(identifiers.contains(builder.toString())) {
-//                builder = new StringBuilder();
-//            }
-//        }
-//        return builder.toString();
-//    }
+    private void initRecyclerView() {
+        recyclerView = findViewById(R.id.recycle_view);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new CustomAdapter(new ArrayList<BaseItem>());
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(adapter);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bindService(MyService.newIntent(MainActivity.this), mServiceConnection, BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unbindService(mServiceConnection);
+    }
 }

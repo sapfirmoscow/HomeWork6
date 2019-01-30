@@ -18,7 +18,6 @@ public class AlarmHolderBinder extends ViewHolderBinder {
     public void bindViewHolder(RecyclerView.ViewHolder holder) {
         CustomAdapter.AlarmViewHolder alarmViewHolder = (CustomAdapter.AlarmViewHolder) holder;
         alarmViewHolder.textView.setText(mAlarm.getTime());
-
     }
 
     @Override

@@ -9,7 +9,6 @@ import ru.sberbank.homework6.Items.Sms;
 class SmsHolderBinder extends ViewHolderBinder {
     private final Sms mSms;
 
-
     public SmsHolderBinder(BaseItem item, int viewType) {
         super(viewType);
         mSms = (Sms) item;
@@ -19,7 +18,6 @@ class SmsHolderBinder extends ViewHolderBinder {
     public void bindViewHolder(RecyclerView.ViewHolder holder) {
         CustomAdapter.SmsViewHolder smsViewHolder = (CustomAdapter.SmsViewHolder) holder;
         smsViewHolder.textView.setText(mSms.getSmsText());
-
     }
 
     @Override

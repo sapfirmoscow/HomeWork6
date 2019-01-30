@@ -24,4 +24,5 @@ public class CallHolderBinder extends ViewHolderBinder {
     public BaseItem getItem() {
         return mCall;
     }
+
 }
