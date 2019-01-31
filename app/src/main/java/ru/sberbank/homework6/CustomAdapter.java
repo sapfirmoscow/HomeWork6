@@ -14,7 +14,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.sberbank.homework6.Items.Alarm;
 import ru.sberbank.homework6.Items.BaseItem;
+import ru.sberbank.homework6.Items.Call;
+import ru.sberbank.homework6.Items.Sms;
 
 public class CustomAdapter extends RecyclerView.Adapter {
 
@@ -56,6 +59,7 @@ public class CustomAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List payloads) {
         Log.d("TESTING", "bind, position = " + position);
+        ViewHolderBinder binder = mBinders.get(position);
         if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads);
         } else {
@@ -63,16 +67,20 @@ public class CustomAdapter extends RecyclerView.Adapter {
             for (String key : diff.keySet()) {
                 switch (key) {
                     case "call_firstname":
-                        ((CallViewHolder) holder).textView.setText(diff.getString("call_firstname"));
+                        Call tempCall = (Call) binder.getItem();
+                        tempCall.setFirstName(diff.getString("call_firstname"));
                         break;
                     case "sms_text":
-                        ((SmsViewHolder) holder).textView.setText(diff.getString("sms_text"));
+                        Sms sms = (Sms) binder.getItem();
+                        sms.setSmsText(diff.getString("sms_text"));
                         break;
                     case "alarm_time":
-                        ((AlarmViewHolder) holder).textView.setText(diff.getString("alarm_time"));
+                        Alarm alarm = (Alarm) binder.getItem();
+                        alarm.setTime(diff.getString("alarm_time"));
                         break;
                 }
             }
+            binder.bindViewHolder(holder);
         }
     }
 
